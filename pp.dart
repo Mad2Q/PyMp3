@@ -10,8 +10,8 @@ const _clientSecret = 'clientSecret';
 void main() async {
   AccessToken? accessToken; // load existing token here if available
 
-  var paypalEnvironment =
-      PayPalEnvironment.sandbox(clientId: "", clientSecret: "");
+  var paypalEnvironment = PayPalEnvironment.sandbox(
+      clientId: _clientId, clientSecret: _clientSecret);
 
   var payPalHttpClient =
       PayPalHttpClient(paypalEnvironment, accessToken: accessToken,
