@@ -19,7 +19,7 @@ void main() async {
   var payPalHttpClient =
       PayPalHttpClient(paypalEnvironment, accessToken: accessToken,
           accessTokenUpdatedCallback: (accessToken) async {
-    // Persist token for re-use
+    // Persist token for re-use sd
   });
 
   print(accessToken);
