@@ -4,24 +4,28 @@ import 'package:paypal_sdk/src/webhooks/webhooks_api.dart';
 import 'package:paypal_sdk/subscriptions.dart';
 import 'package:paypal_sdk/webhooks.dart';
 
-const _clientId = 'clientId';
-const _clientSecret = 'clientSecret';
+const _clientId =
+    'AXWmM4mCdjIZOA5CFoc0Zp5l7IkEVYUqW2yvFW8hRrlIjjV89CXWUTDMrAtzBCBrN8Y7_2KkiWTbe4ay';
+const _clientSecret =
+    'EFuh3WfX-OBUD63lEUjlz2K7y6HlwmxmiA7ebH8JzFjD0b_dZe-AojHJb5AysxQT6QdfTfOpl6dYaQXU';
 
 void main() async {
   AccessToken? accessToken; // load existing token here if available
 
   var paypalEnvironment = PayPalEnvironment.sandbox(
       clientId: _clientId, clientSecret: _clientSecret);
+  print("paypalEnvironment: $paypalEnvironment");
 
   var payPalHttpClient =
       PayPalHttpClient(paypalEnvironment, accessToken: accessToken,
           accessTokenUpdatedCallback: (accessToken) async {
     // Persist token for re-use
-  });
+  }, loggingEnabled: true);
+  print("payPalHttpClient: $payPalHttpClient");
 
   await catalogProductsExamples(payPalHttpClient);
-  await subscriptionExamples(payPalHttpClient);
-  await webhookExamples(payPalHttpClient);
+  //await subscriptionExamples(payPalHttpClient);
+  //await webhookExamples(payPalHttpClient);
 }
 
 Future<void> catalogProductsExamples(PayPalHttpClient payPalHttpClient) async {
