@@ -1,46 +1,25 @@
-<div id="smart-button-container">
-      <div style="text-align: center;">
-        <div id="paypal-button-container"></div>
-      </div>
-    </div>
-  <script src="https://www.paypal.com/sdk/js?client-id=sb&enable-funding=venmo&currency=USD" data-sdk-integration-source="button-factory"></script>
-  <script>
-    function initPayPalButton() {
-      paypal.Buttons({
-        style: {
-          shape: 'pill',
-          color: 'blue',
-          layout: 'vertical',
-          label: 'pay',
-          
-        },
-
-        createOrder: function(data, actions) {
-          return actions.order.create({
-            purchase_units: [{"description":"Der cAca ","amount":{"currency_code":"USD","value":30}}]
-          });
-        },
-
-        onApprove: function(data, actions) {
-          return actions.order.capture().then(function(orderData) {
-            
-            // Full available details
-            console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
-
-            // Show a success message within this page, e.g.
-            const element = document.getElementById('paypal-button-container');
-            element.innerHTML = '';
-            element.innerHTML = '<h3>Thank you for your payment!</h3>';
-
-            // Or go to another URL:  actions.redirect('thank_you.html');
-            
-          });
-        },
-
-        onError: function(err) {
-          console.log(err);
-        }
-      }).render('#paypal-button-container');
-    }
-    initPayPalButton();
-  </script>
+WebView(
+          initialUrl: checkoutUrl,
+          javascriptMode: JavascriptMode.unrestricted,
+          navigationDelegate: (NavigationRequest request) {
+            if (request.url.contains(returnURL)) {
+              final uri = Uri.parse(request.url);
+              final payerID = uri.queryParameters['PayerID'];
+              if (payerID != null) {
+                services
+                    .executePayment(executeUrl, payerID, accessToken)
+                    .then((id) {
+                  widget.onFinish(id);
+                  Navigator.of(context).pop();
+                });
+              } else {
+                Navigator.of(context).pop();
+              }
+              Navigator.of(context).pop();
+            }
+            if (request.url.contains(cancelURL)) {
+              Navigator.of(context).pop();
+            }
+            return NavigationDecision.navigate;
+          },
+        )

@@ -11,27 +11,40 @@ void main() async {
   AccessToken? accessToken; // load existing token here if available
 
   var paypalEnvironment = PayPalEnvironment.sandbox(
-      clientId:
-          "EFuh3WfX-OBUD63lEUjlz2K7y6HlwmxmiA7ebH8JzFjD0b_dZe-AojHJb5AysxQT6QdfTfOpl6dYaQXU",
-      clientSecret:
-          "AXWmM4mCdjIZOA5CFoc0Zp5l7IkEVYUqW2yvFW8hRrlIjjV89CXWUTDMrAtzBCBrN8Y7_2KkiWTbe4ay");
+      clientId: _clientId, clientSecret: _clientSecret);
 
   var payPalHttpClient =
       PayPalHttpClient(paypalEnvironment, accessToken: accessToken,
           accessTokenUpdatedCallback: (accessToken) async {
-    // Persist token for re-use sd
+    // Persist token for re-use
   });
 
-  print(accessToken);
-  print("accestoken ${accessToken!.authorizationString()}");
   await catalogProductsExamples(payPalHttpClient);
-
-  //await subscriptionExamples(payPalHttpClient);
-  //await webhookExamples(payPalHttpClient);
+  await subscriptionExamples(payPalHttpClient);
+  await webhookExamples(payPalHttpClient);
 }
 
 Future<void> catalogProductsExamples(PayPalHttpClient payPalHttpClient) async {
   var productsApi = CatalogProductsApi(payPalHttpClient);
+
+  // Get product details
+  try {
+    var product = await productsApi.showProductDetails('product_id');
+    print(product);
+  } on ApiException catch (e) {
+    print(e);
+  }
+
+  // List products
+  try {
+    var productsCollection = await productsApi.listProducts();
+
+    for (var product in productsCollection.products) {
+      print(product);
+    }
+  } on ApiException catch (e) {
+    print(e);
+  }
 
   // Create product
   try {
@@ -55,25 +68,6 @@ Future<void> catalogProductsExamples(PayPalHttpClient payPalHttpClient) async {
           path: '/description',
           value: 'Updated description')
     ]);
-  } on ApiException catch (e) {
-    print(e);
-  }
-
-  // Get product details
-  try {
-    var product = await productsApi.showProductDetails('product_id');
-    print(product);
-  } on ApiException catch (e) {
-    print(e);
-  }
-
-  // List products
-  try {
-    var productsCollection = await productsApi.listProducts();
-
-    for (var product in productsCollection.products) {
-      print(product);
-    }
   } on ApiException catch (e) {
     print(e);
   }
