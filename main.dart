@@ -1,35 +1,43 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
-
-  @override
-  State<HomePage> createState() => _HomePageState();
+void main() {
+  runApp(const MyApp());
 }
 
-class _HomePageState extends State<HomePage> {
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
   static List<String> gits = ["https://github.com/underdoggit2"];
   WebViewController webview_controller = WebViewController()
     ..setJavaScriptMode(JavaScriptMode.unrestricted)
     ..setBackgroundColor(const Color(0x00000000))
-    ..setNavigationDelegate(
-      NavigationDelegate(
-        onProgress: (int progress) {
-          // Update loading bar.
-        },
-        onPageStarted: (String url) {},
-        onPageFinished: (String url) {},
-        onWebResourceError: (WebResourceError error) {},
-        onNavigationRequest: (NavigationRequest request) {
-          if (request.url.startsWith('https://www.youtube.com/')) {
-            return NavigationDecision.prevent;
-          }
-          return NavigationDecision.navigate;
-        },
-      ),
-    )
     ..loadRequest(Uri.parse('https://flutter.dev'));
+
   @override
   void initState() {
     super.initState();
@@ -37,21 +45,42 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return WebViewWidget(
-      controller: webview_controller,
-    );
+    return Scaffold(
+        appBar: AppBar(
+          title: Text(widget.title),
+        ),
+        body: body());
   }
 
   Widget body() {
-    return Column(
-      children: [
-        ...body_col(),
-      ],
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          //...body_col(),
+          Container(
+            height: 100,
+            width: 100,
+            color: Colors.black26,
+            child: Text("sd"),
+          ),
+          Container(
+            height: 300,
+            width: 300,
+            child: WebViewWidget(controller: webview_controller),
+          )
+        ],
+      ),
     );
   }
 
   Widget body_col_e(String git) {
-    return Container();
+    return Container(
+      height: 100,
+      width: 100,
+      color: Colors.black12,
+      child: Text(git),
+    );
   }
 
   List<Widget> body_col() {
