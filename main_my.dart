@@ -49,14 +49,6 @@ class _MyHomePageState extends State<MyHomePage> {
         },
       ),
     );
-
-    Uri uri_gits = Uri(
-        scheme: 'https',
-        host: 'github.com',
-        path: '/underdoggit2',
-        fragment: 'numbers');
-
-    webview_controller.loadRequest(gits[0] as Uri);
   }
 
   @override
