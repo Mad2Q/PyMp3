@@ -1,6 +1,11 @@
+import 'dart:convert';
+
+import 'package:draw_graph/draw_graph.dart';
+import 'package:draw_graph/models/feature.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:html/parser.dart' show parse;
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MyApp());
@@ -33,30 +38,48 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   static List<String> gits = ["https://github.com/underdoggit2"];
-  WebViewController webview_controller = WebViewController();
+  final List<Feature> features = [
+    Feature(
+      title: "Drink Water",
+      color: Colors.blue,
+      data: [0.2, 0.8, 0.4, 0.7, 0.6, 0.8, 0.4, 0.7, 0.6, 0.4, 0.7, 0.6],
+    ),
+    Feature(
+      title: "Exercise",
+      color: Colors.pink,
+      data: [1, 0.8, 0.6, 0.7, 0.3, 0.8, 0.4, 0.7, 0.6, 0.4, 0.7, 0.6],
+    ),
+  ];
 
   @override
   void initState() {
     super.initState();
-    webview_controller.setNavigationDelegate(
-      NavigationDelegate(
-        onWebResourceError: (WebResourceError error) {},
-        onNavigationRequest: (NavigationRequest request) {
-          if (request.url.startsWith('https://www.github.com/')) {
-            return NavigationDecision.prevent;
-          }
-          return NavigationDecision.navigate;
-        },
-      ),
-    );
 
     Uri uri_gits = Uri(
         scheme: 'https',
         host: 'github.com',
         path: '/underdoggit2',
-        fragment: 'numbers');
+        fragment: '');
 
-    webview_controller.loadRequest(gits[0] as Uri);
+    getHtml(gits[0]);
+  }
+
+  Future<String> getHtml(String url) async {
+    final response = await http.get(Uri.parse(url), headers: {
+      "Access-Control_Allow_Origin": "*",
+    });
+
+    print(response);
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      print(response.body);
+      return response.body;
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load album');
+    }
   }
 
   @override
@@ -80,11 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
             color: Colors.black26,
             child: Text("sd"),
           ),
-          Container(
-            height: 300,
-            width: 300,
-            child: WebViewWidget(controller: webview_controller),
-          )
+          ...graph(),
         ],
       ),
     );
@@ -105,5 +124,45 @@ class _MyHomePageState extends State<MyHomePage> {
       wids.add(body_col_e(git));
     }
     return wids;
+  }
+
+  List<Widget> graph() {
+    return [
+      const Padding(
+        padding: const EdgeInsets.symmetric(vertical: 64.0),
+        child: Text(
+          "Tasks Track",
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 2,
+          ),
+        ),
+      ),
+      LineGraph(
+        features: features,
+        size: Size(520, 400),
+        labelX: [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec"
+        ],
+        labelY: ['20%', '40%', '60%', '80%', '100%'],
+        showDescription: true,
+        graphColor: Colors.black,
+        graphOpacity: 0.2,
+        verticalFeatureDirection: true,
+        descriptionHeight: 130,
+      )
+    ];
   }
 }
