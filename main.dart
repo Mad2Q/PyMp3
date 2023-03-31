@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:csv/csv.dart';
 import 'package:draw_graph/draw_graph.dart';
 import 'package:draw_graph/models/feature.dart';
@@ -39,7 +38,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  late List<List<dynamic>> data;
+  late List<List<dynamic>> date;
   static List<String> gits = ["https://github.com/underdoggit2"];
   final List<Feature> features = [
     Feature(
@@ -159,9 +158,57 @@ class _MyHomePageState extends State<MyHomePage> {
 
   loadAsset() async {
     var myData = await rootBundle.loadString("data/date.csv");
-    List<List<dynamic>> csvTable = CsvToListConverter().convert(myData);
+    List<List<dynamic>> csvTable =
+        CsvToListConverter(fieldDelimiter: " ", eol: "\n").convert(myData);
     setState(() {
-      data = csvTable;
+      date = csvTable;
     });
+    print(date);
+    buildFeature(date);
+  }
+
+  List<List> buildFeature(List<List<dynamic>> contr) {
+    List<String> months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    ];
+
+    String title = "";
+    List<List<dynamic>> tmp = [];
+    List<int> count_month_contr = new List<int>.filled(months.length, 0);
+
+    for (List<dynamic> c in contr) {
+      print(c);
+      if (title != c[0]) {
+        if (title != "") {
+          List<dynamic> a = [c[0]];
+          a.add(count_month_contr);
+          tmp.add(a);
+        }
+
+        title = c[0];
+        count_month_contr = new List<int>.filled(months.length, 0);
+      }
+      months.asMap().forEach((index, month) {
+        if (c[2] == month) {
+          count_month_contr[index] += 1;
+        }
+      });
+      print(count_month_contr);
+    }
+    for (var e in tmp) {
+      print(e);
+    }
+    return tmp;
   }
 }
