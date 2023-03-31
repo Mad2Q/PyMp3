@@ -1,9 +1,11 @@
 import 'dart:convert';
 
+import 'package:csv/csv.dart';
 import 'package:draw_graph/draw_graph.dart';
 import 'package:draw_graph/models/feature.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:http/http.dart' as http;
 
@@ -37,6 +39,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  late List<List<dynamic>> data;
   static List<String> gits = ["https://github.com/underdoggit2"];
   final List<Feature> features = [
     Feature(
@@ -44,26 +47,15 @@ class _MyHomePageState extends State<MyHomePage> {
       color: Colors.blue,
       data: [0.2, 0.8, 0.4, 0.7, 0.6, 0.8, 0.4, 0.7, 0.6, 0.4, 0.7, 0.6],
     ),
-    Feature(
-      title: "Exercise",
-      color: Colors.pink,
-      data: [1, 0.8, 0.6, 0.7, 0.3, 0.8, 0.4, 0.7, 0.6, 0.4, 0.7, 0.6],
-    ),
   ];
 
   @override
   void initState() {
     super.initState();
-
-    Uri uri_gits = Uri(
-        scheme: 'https',
-        host: 'github.com',
-        path: '/underdoggit2',
-        fragment: '');
-
-    getHtml(gits[0]);
+    loadAsset();
   }
 
+  // In the Future
   Future<String> getHtml(String url) async {
     final response = await http.get(Uri.parse(url), headers: {
       "Access-Control_Allow_Origin": "*",
@@ -92,19 +84,18 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget body() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          //...body_col(),
-          Container(
-            height: 100,
-            width: 100,
-            color: Colors.black26,
-            child: Text("sd"),
+    return SafeArea(
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              //...body_col(),
+              ...graph(),
+            ],
           ),
-          ...graph(),
-        ],
+        ),
       ),
     );
   }
@@ -129,7 +120,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Widget> graph() {
     return [
       const Padding(
-        padding: const EdgeInsets.symmetric(vertical: 64.0),
+        padding: const EdgeInsets.symmetric(vertical: 14.0),
         child: Text(
           "Tasks Track",
           style: TextStyle(
@@ -164,5 +155,13 @@ class _MyHomePageState extends State<MyHomePage> {
         descriptionHeight: 130,
       )
     ];
+  }
+
+  loadAsset() async {
+    var myData = await rootBundle.loadString("data/date.csv");
+    List<List<dynamic>> csvTable = CsvToListConverter().convert(myData);
+    setState(() {
+      data = csvTable;
+    });
   }
 }
