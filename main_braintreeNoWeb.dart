@@ -5,6 +5,7 @@ import 'package:draw_graph/models/feature.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_braintree/flutter_braintree.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
@@ -44,6 +45,8 @@ class _MyHomePageState extends State<MyHomePage> {
   static Set<String> gits = new Set();
   final List<Feature> features = [];
 
+  static final String tokenizationKey = 'sandbox_pgcksxz4_m4hfkc7qggxk82fg';
+
   @override
   void initState() {
     super.initState();
@@ -65,23 +68,124 @@ class _MyHomePageState extends State<MyHomePage> {
     print(gits);
   }
 
+  void showNonce(BraintreePaymentMethodNonce nonce) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('Payment method nonce:'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Text('Nonce: ${nonce.nonce}'),
+            SizedBox(height: 16),
+            Text('Type label: ${nonce.typeLabel}'),
+            SizedBox(height: 16),
+            Text('Description: ${nonce.description}'),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-        ),
-        body: body());
-  }
-
-  Widget body() {
-    return SafeArea(
-        child: Center(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: body_col(),
+      appBar: AppBar(
+        title: const Text('Braintree example app'),
       ),
-    ));
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            ElevatedButton(
+              onPressed: () async {
+                var request = BraintreeDropInRequest(
+                  tokenizationKey: tokenizationKey,
+                  collectDeviceData: true,
+                  googlePaymentRequest: BraintreeGooglePaymentRequest(
+                    totalPrice: '4.20',
+                    currencyCode: 'USD',
+                    billingAddressRequired: false,
+                  ),
+                  applePayRequest: BraintreeApplePayRequest(
+                      currencyCode: 'USD',
+                      supportedNetworks: [
+                        ApplePaySupportedNetworks.visa,
+                        ApplePaySupportedNetworks.masterCard,
+                        // ApplePaySupportedNetworks.amex,
+                        // ApplePaySupportedNetworks.discover,
+                      ],
+                      countryCode: 'US',
+                      merchantIdentifier: '',
+                      displayName: '',
+                      paymentSummaryItems: []),
+                  paypalRequest: BraintreePayPalRequest(
+                    amount: '4.20',
+                    displayName: 'Example company',
+                  ),
+                  cardEnabled: true,
+                );
+                final result = await BraintreeDropIn.start(request);
+                if (result != null) {
+                  showNonce(result.paymentMethodNonce);
+                }
+              },
+              child: Text('LAUNCH NATIVE DROP-IN'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final request = BraintreeCreditCardRequest(
+                  cardNumber: '4111111111111111',
+                  expirationMonth: '12',
+                  expirationYear: '2021',
+                  cvv: '123',
+                );
+                final result = await Braintree.tokenizeCreditCard(
+                  tokenizationKey,
+                  request,
+                );
+                if (result != null) {
+                  showNonce(result);
+                }
+              },
+              child: Text('TOKENIZE CREDIT CARD'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final request = BraintreePayPalRequest(
+                  amount: null,
+                  billingAgreementDescription:
+                      'I hereby agree that flutter_braintree is great.',
+                  displayName: 'Your Company',
+                );
+                final result = await Braintree.requestPaypalNonce(
+                  tokenizationKey,
+                  request,
+                );
+                if (result != null) {
+                  showNonce(result);
+                }
+              },
+              child: Text('PAYPAL VAULT FLOW'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final request = BraintreePayPalRequest(amount: '13.37');
+                final result = await Braintree.requestPaypalNonce(
+                  tokenizationKey,
+                  request,
+                );
+                if (result != null) {
+                  showNonce(result);
+                }
+              },
+              child: Text('PAYPAL CHECKOUT FLOW'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _launchUrl(String _url) async {
