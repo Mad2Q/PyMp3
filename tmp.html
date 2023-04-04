@@ -1,86 +1,46 @@
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-
-</head>
-<body>
-    <svg width="155" height="30">
-        <defs>
-          <linearGradient id="gradient-620843696" x1="0" x2="0" y1="1" y2="0">
-            <stop offset="0%" stop-color="var(--color-calendar-graph-day-L1-bg)"></stop>
-            <stop offset="10%" stop-color="var(--color-calendar-graph-day-L2-bg)"></stop>
-            <stop offset="25%" stop-color="var(--color-calendar-graph-day-L3-bg)"></stop>
-            <stop offset="50%" stop-color="var(--color-calendar-graph-day-L4-bg)"></stop>
-          </linearGradient>
-          <mask id="sparkline-620843696" x="0" y="0" width="155" height="28">
-            <polyline transform="translate(0, 28) scale(1,-1)" points="0,1 3,1 6,1 9,1 12,1 15,2 18,1 21,1 24,1 27,1 30,1 33,1 36,1 39,1 42,1 45,1 48,1 51,1 54,1 57,1 60,1 63,1 66,1 69,1 72,1 75,1 78,1 81,1 84,1 87,1 90,5 93,1 96,1 99,1 102,3 105,1 108,1 111,1 114,1 117,1 120,1 123,1 126,1 129,1 132,1 135,1 138,1 141,1 144,1 147,1 150,1 153,5 " fill="transparent" stroke="#8cc665" stroke-width="2">
-          </polyline></mask>
-        </defs>
-  
-        <g transform="translate(0, -10)">
-          <rect x="0" y="-2" width="155" height="30" style="stroke: none; fill: url(#gradient-620843696); mask: url(#sparkline-620843696)"></rect>
-        </g>
-      </svg>
-</body>
-</html>
-
 <div id="smart-button-container">
-  <div style="text-align: center;">
-    <div id="paypal-button-container"></div>
-  </div>
-</div>
-<script src="https://www.paypal.com/sdk/js?client-id=sb&enable-funding=venmo&currency=EUR" data-sdk-integration-source="button-factory"></script>
-<script>
-function initPayPalButton() {
-  paypal.Buttons({
-    style: {
-      shape: 'rect',
-      color: 'blue',
-      layout: 'vertical',
-      label: 'pay',
-      
-    },
+      <div style="text-align: center;">
+        <div id="paypal-button-container"></div>
+      </div>
+    </div>
+  <script src="https://www.paypal.com/sdk/js?client-id=sb&enable-funding=venmo&currency=USD" data-sdk-integration-source="button-factory"></script>
+  <script>
+    function initPayPalButton() {
+      paypal.Buttons({
+        style: {
+          shape: 'rect',
+          color: 'gold',
+          layout: 'vertical',
+          label: 'paypal',
+          
+        },
 
-    createOrder: function(data, actions) {
-      return actions.order.create({
-        purchase_units: [{"amount":{"currency_code":"EUR","value":25}}]
-      });
-    },
+        createOrder: function(data, actions) {
+          return actions.order.create({
+            purchase_units: [{"amount":{"currency_code":"USD","value":1}}]
+          });
+        },
 
-    onApprove: function(data, actions) {
-      return actions.order.capture().then(function(orderData) {
-        
-        // Full available details
-        console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+        onApprove: function(data, actions) {
+          return actions.order.capture().then(function(orderData) {
+            
+            // Full available details
+            console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
 
-        // Show a success message within this page, e.g.
-        const element = document.getElementById('paypal-button-container');
-        element.innerHTML = '';
-        element.innerHTML = '<h3>Thank you for your payment!</h3>';
+            // Show a success message within this page, e.g.
+            const element = document.getElementById('paypal-button-container');
+            element.innerHTML = '';
+            element.innerHTML = '<h3>Thank you for your payment!</h3>';
 
-        // Or go to another URL:  actions.redirect('thank_you.html');
-        
-      });
-    },
+            // Or go to another URL:  actions.redirect('thank_you.html');
+            
+          });
+        },
 
-    onError: function(err) {
-      console.log(err);
+        onError: function(err) {
+          console.log(err);
+        }
+      }).render('#paypal-button-container');
     }
-  }).render('#paypal-button-container');
-}
-initPayPalButton();
-</script>
-
-
-
-
-
-
-
-
-
+    initPayPalButton();
+  </script>
