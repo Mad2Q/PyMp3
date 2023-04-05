@@ -105,3 +105,52 @@ class FrameApp(Frame):
         elif not self.paused:
             pygame.mixer.music.pause()
             self.paused = True
+
+
+ def get_next_song(self):
+        """
+        Gets next song number on playlist
+        :return: int - next song number
+        """
+        if self.actual_song + 2 <= len(self.playlist):
+            return self.actual_song + 1
+        else:
+            return 0
+
+    def next_song(self):
+        """
+        Plays next song
+        :return: None
+        """
+        self.actual_song = self.get_next_song()
+        self.play_music()
+
+    def get_previous_song(self):
+        """
+        Gets previous song number on playlist and returns it
+        :return: int - prevoius song number on playlist
+        """
+        if self.actual_song - 1 >= 0:
+            return self.actual_song - 1
+        else:
+            return len(self.playlist) - 1
+
+    def previous_song(self):
+        """
+        Plays prevoius song
+        :return:
+        """
+        self.actual_song = self.get_previous_song()
+        self.play_music()
+
+
+root = Tk()
+root.geometry("350x500")
+app = FrameApp(root)
+
+while True:
+    # runs mainloop of program
+    app.check_music()
+    app.update()
+
+
